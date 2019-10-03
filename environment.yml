@@ -1,0 +1,5 @@
+name: dietsmart
+channels:
+  - anaconda
+dependencies:  
+  - flask
