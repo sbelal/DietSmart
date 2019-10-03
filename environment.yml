@@ -3,3 +3,5 @@ channels:
   - anaconda
 dependencies:  
   - flask
+  - keras
+  - pillow
