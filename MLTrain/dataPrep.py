@@ -1,13 +1,21 @@
 import os
 import pandas as pd
 import numpy as np
+import shutil
 from sklearn.model_selection import train_test_split
+import uuid
+
+
+
+def copy_rename(old_file_name, new_file_name):
+    shutil.copy(old_file_name,new_file_name)        
+    
 
 
 
 csvData = []
 
-rootDir = '.\\MLTrain\\DataSets'
+rootDir = '.\\MLTrain\\DataSets\\\FooDD'
 for dirName, subdirList, fileList in os.walk(rootDir):
     #print('Found directory: %s' % dirName)
     for fname in fileList:
@@ -18,7 +26,12 @@ for dirName, subdirList, fileList in os.walk(rootDir):
         print('\t%s' % dirName + "/" + fname)
         print (imgclass)
         print ("")
-        csvData.append([filePath, imgclass])
+
+        newFileName = ".\\MLTrain\\DataSets\\TrainImages\\" + str(uuid.uuid4()) + ".png"
+        copy_rename(filePath, newFileName)
+
+
+        csvData.append([newFileName, imgclass])
 
 dfObj = pd.DataFrame(csvData, columns = ['ImagePath' , 'Class']) 
 dfObj.to_csv(r'.\MLTrain\DataSets\FullFoodDataSet.csv', index=False, header=True)

@@ -13,41 +13,36 @@ from keras.applications.resnet50 import ResNet50, preprocess_input
 from keras.optimizers import SGD, Adam
 
 
-def append_ext(fn):
-    return fn+".png"
 
-traindf=pd.read_csv("./trainLabels.csv",dtype=str)
-testdf=pd.read_csv("./sampleSubmission.csv",dtype=str)
-traindf["id"]=traindf["id"].apply(append_ext)
-testdf["id"]=testdf["id"].apply(append_ext)
+def load_dataFrame():
+    trainDf = pd.read_csv(r'.\MLTrain\DataSets\TrainFoodDataSet.csv')  
+    testdf = pd.read_csv(r'.\MLTrain\DataSets\TrainFoodDataSet.csv')  
 
-datagen=ImageDataGenerator(rescale=1./255.,validation_split=0.25)
+    datagen=ImageDataGenerator(rescale=1./255.,validation_split=0.25)
 
+    train_generator=datagen.flow_from_dataframe(
+        dataframe=trainDf,
+        directory="./train/",
+        x_col="id",
+        y_col="label",
+        subset="training",
+        batch_size=32,
+        seed=42,
+        shuffle=True,
+        class_mode="categorical",
+        target_size=(32,32))
 
-
-train_generator=datagen.flow_from_dataframe(
-    dataframe=traindf,
-    directory="./train/",
-    x_col="id",
-    y_col="label",
-    subset="training",
-    batch_size=32,
-    seed=42,
-    shuffle=True,
-    class_mode="categorical",
-    target_size=(32,32))
-
-valid_generator=datagen.flow_from_dataframe(
-    dataframe=traindf,
-    directory="./train/",
-    x_col="id",
-    y_col="label",
-    subset="validation",
-    batch_size=32,
-    seed=42,
-    shuffle=True,
-    class_mode="categorical",
-    target_size=(32,32))
+    valid_generator=datagen.flow_from_dataframe(
+        dataframe=traindf,
+        directory="./train/",
+        x_col="id",
+        y_col="label",
+        subset="validation",
+        batch_size=32,
+        seed=42,
+        shuffle=True,
+        class_mode="categorical",
+        target_size=(32,32))
 
 
 
