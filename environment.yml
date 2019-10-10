@@ -5,3 +5,5 @@ dependencies:
   - flask
   - keras
   - pillow
+  - pandas
+  - scikit-learn
