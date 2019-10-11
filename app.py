@@ -34,8 +34,8 @@ def retrieve_model():
     modelFilePath = MODEL_PATH + MODEL_FILE_NAME
 
     global model
-    #model = load_model(modelFilePath)    
-    model = ResNet50(weights="imagenet")
+    model = load_model(modelFilePath)    
+    #model = ResNet50(weights="imagenet")
     model._make_predict_function()
     
 
