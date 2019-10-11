@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify, render_template
 from keras.applications import ResNet50
 from keras.preprocessing.image import img_to_array
 from keras.applications import imagenet_utils
+from keras.models import load_model
 from PIL import Image
 import numpy as np
 
@@ -14,12 +15,12 @@ import numpy as np
 app = Flask(__name__)
 
 model = None
-MODEL_PATH = 'models/'
-MODEL_FILE_NAME = 'myAwesomeMode.h5'
+MODEL_PATH = './models/'
+MODEL_FILE_NAME = 'ResNet50_model_weights.h5'
 
 
 
-def load_model():
+def retrieve_model():
     # load the pre-trained Keras model (here we are using a model
     # pre-trained on ImageNet and provided by Keras, but you can
     # substitute in your own networks just as easily)
@@ -30,10 +31,13 @@ def load_model():
     else:    
         print("Directory " , MODEL_PATH ,  " already exists")
     
+    modelFilePath = MODEL_PATH + MODEL_FILE_NAME
+
     global model
+    #model = load_model(modelFilePath)    
     model = ResNet50(weights="imagenet")
     model._make_predict_function()
-
+    
 
 
 
@@ -99,5 +103,5 @@ if __name__ == "__main__":
 
     print(("* Loading Keras model and Flask starting server..."
         "please wait until server has fully started"))
-    load_model()
+    retrieve_model()
     app.run()
