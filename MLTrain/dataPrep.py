@@ -9,13 +9,15 @@ import uuid
 
 def copy_rename(old_file_name, new_file_name):
     shutil.copy(old_file_name,new_file_name)        
-    
 
+TrainImagePath = ".\\MLTrain\\DataSets\\TrainImages\\"
+if not os.path.exists(".\\MLTrain\\DataSets\\TrainImages\\"):
+    os.mkdir(TrainImagePath)
 
 
 csvData = []
 
-rootDir = '.\\MLTrain\\DataSets\\\FooDD'
+rootDir = '.\\MLTrain\\DataSets\\FooDD'
 for dirName, subdirList, fileList in os.walk(rootDir):
     #print('Found directory: %s' % dirName)
     for fname in fileList:
@@ -27,9 +29,8 @@ for dirName, subdirList, fileList in os.walk(rootDir):
         print (imgclass)
         print ("")
 
-        newFileName = ".\\MLTrain\\DataSets\\TrainImages\\" + str(uuid.uuid4()) + ".png"
+        newFileName = TrainImagePath + imgclass + "_" + str(uuid.uuid4()) + ".png"
         copy_rename(filePath, newFileName)
-
 
         csvData.append([newFileName, imgclass])
 
