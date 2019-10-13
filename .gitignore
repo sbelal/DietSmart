@@ -106,3 +106,5 @@ venv.bak/
 MLTrain/DataSets/
 checkpoints/
 models/ResNet50_model_weights.h5
+models/ResNet_model_weights.h5
+models/MobileNet_model_weights.h5

@@ -16,9 +16,11 @@ app = Flask(__name__)
 
 model = None
 MODEL_PATH = './models/'
-MODEL_FILE_NAME = 'ResNet50_model_weights.h5'
-
-
+MODEL_FILE_NAME = 'ResNet_model_weights.h5'
+#MODEL_FILE_NAME = 'MobileNet_model_weights.h5'
+MODEL_CLASS_FILE_NAME = 'ResNet_classLabelMap.npy'
+#MODEL_CLASS_FILE_NAME = 'MobileNet_classLabelMap.npy'
+MODEL_CLASS_MAPP = {}
 
 def retrieve_model():
     # load the pre-trained Keras model (here we are using a model
@@ -33,8 +35,12 @@ def retrieve_model():
     
     modelFilePath = MODEL_PATH + MODEL_FILE_NAME
 
+    dictPath = MODEL_PATH + MODEL_CLASS_FILE_NAME
+    global MODEL_CLASS_MAPP
+    MODEL_CLASS_MAPP = np.load(dictPath, allow_pickle=True).item()
+
     global model
-    model = load_model(modelFilePath)    
+    model = load_model(modelFilePath)
     #model = ResNet50(weights="imagenet")
     model._make_predict_function()
     
@@ -56,17 +62,31 @@ def prepare_image(image, target):
     return image
 
 def model_predict(image, model):
-    data = {"success": False}
-
-    preds = model.predict(image)
-    results = imagenet_utils.decode_predictions(preds)
+    data = {"success": False, "Prediction": "None"}
     data["predictions"] = []
 
-    for (imagenetID, label, prob) in results[0]:
-                r = {"label": label, "probability": float(prob)}
-                data["predictions"].append(r)
+    preds = model.predict(image)
+    
+    for class_index in range(len(MODEL_CLASS_MAPP)):
+        class_label = MODEL_CLASS_MAPP[class_index]
+        r = {"Label": class_label, "Probability": float(preds[0][class_index])}
+        data["predictions"].append(r) 
+        pass
+
+    prediction=np.argmax(preds,axis=1)
+    data["Prediction"] = MODEL_CLASS_MAPP[prediction[0]]
 
     data["success"] = True
+
+
+    #results = imagenet_utils.decode_predictions(preds)
+    #data["predictions"] = []
+
+    #for (imagenetID, label, prob) in results[0]:
+    #            r = {"label": label, "probability": float(prob)}
+    #            data["predictions"].append(r)
+
+    #data["success"] = True
     
     return jsonify(data)
 
@@ -105,3 +125,13 @@ if __name__ == "__main__":
         "please wait until server has fully started"))
     retrieve_model()
     app.run()
+
+
+
+
+
+
+
+
+
+

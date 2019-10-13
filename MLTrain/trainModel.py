@@ -6,7 +6,8 @@ from keras_preprocessing.image import ImageDataGenerator
 from keras.layers import Dense, Activation, Flatten, Dropout, BatchNormalization
 from keras.layers import Conv2D, MaxPooling2D
 from keras import regularizers, optimizers
-from keras.applications.resnet50 import ResNet50, preprocess_input
+from keras.applications.resnet50 import ResNet50
+from keras.applications import MobileNet
 from keras.optimizers import SGD, Adam
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler, TensorBoard, EarlyStopping
 from PIL import ImageFile
@@ -56,15 +57,39 @@ def load_dataFrame(targetImageHeight, targetImageWidth, batchSize):
         class_mode=None,
         target_size=(targetImageHeight,targetImageWidth))
 
-    return class_list, train_generator, valid_generator, test_generator
+
+    label_map = (train_generator.class_indices)
+    label_map = dict((v,k) for k,v in label_map.items()) #flip k,v
+
+    return class_list, train_generator, valid_generator, test_generator, label_map
 
 
 
 
+def get_base_model(model_name):
+    imgHeight = 0
+    imgWidth = 0
+    if model_name == "ResNet":
+        imgHeight = 224
+        imgWidth = 224
+        base_model = ResNet50(weights='imagenet', include_top=False, input_shape=(imgHeight, imgWidth, 3))
+    elif model_name == "MobileNet":
+        imgHeight = 224
+        imgWidth = 224        
+        base_model=MobileNet(weights='imagenet',include_top=False, input_shape=(imgHeight, imgWidth, 3)) #imports the mobilenet model and discards the last 1000 neuron layer.        
+    else:
+        imgHeight = 224
+        imgWidth = 224
+        base_model = ResNet50(weights='imagenet', include_top=False, input_shape=(imgHeight, imgWidth, 3))
 
-def build_finetune_model(dropout, fc_layers, num_classes, imgHeight, imgWidth):
-    base_model = ResNet50(weights='imagenet', include_top=False, input_shape=(imgHeight, imgWidth, 3))
+    return base_model, imgHeight, imgWidth
 
+
+
+
+    
+
+def build_finetune_model(base_model, dropout, fc_layers, num_classes, imgHeight, imgWidth):    
     for layer in base_model.layers:
         layer.trainable = False
 
@@ -91,15 +116,17 @@ checkpointPath = "./checkpoints/"
 if not os.path.exists(checkpointPath):
     os.mkdir(checkpointPath)
 
+model_name = "MobileNet"
+class_list, train_generator, valid_generator, test_generator, label_map = load_dataFrame(224,224,32)
+np.save('./models/' + model_name + '_classLabelMap.npy', label_map) 
 
-class_list, train_generator, valid_generator, test_generator = load_dataFrame(224,224,32)
-
-FC_LAYERS = [512]
+FC_LAYERS = [512,256]
 dropout = 0.2
-finetune_model = build_finetune_model(0.5, FC_LAYERS, len(class_list), 224, 224)
+base_model, imgHeight, imgWidth = get_base_model(model_name)
+finetune_model = build_finetune_model(base_model, 0.5, FC_LAYERS, len(class_list), imgHeight, imgWidth)
 
 
-filepath="./checkpoints/" + "ResNet50" + "_model_weights.h5"
+filepath="./checkpoints/" + model_name + "_model_weights.h5"
 checkpoint = ModelCheckpoint(filepath, monitor=["acc"], verbose=1, mode='max')
 callbacks_list = [checkpoint]
 

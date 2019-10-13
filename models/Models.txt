@@ -1,1 +1,5 @@
 Models go here
+
+You can download models from here:
+https://www.dropbox.com/s/fy7se7arveqjxtc/MobileNet_model_weights.h5?dl=0
+https://www.dropbox.com/s/c95f8qx02roi96w/ResNet_model_weights.h5?dl=0
